@@ -8,6 +8,7 @@ from starlette.templating import Jinja2Templates
 from starlette.background import BackgroundTask
 
 import uvicorn
+import re
 from youtube_dl import YoutubeDL
 from collections import ChainMap
 
@@ -57,7 +58,7 @@ async def update_route(scope, receive, send):
 def update():
     try:
         output = subprocess.check_output(
-            [sys.executable, "-m", "pip", "install", "--upgrade", "youtube-dl"]
+            [sys.executable, "-m", "pip", "install", "--upgrade", "youtube-dl", "you-get"]
         )
 
         print(output.decode("ascii"))
@@ -110,8 +111,20 @@ def get_ydl_options(request_options):
 
 
 def download(url, request_options):
-    with YoutubeDL(get_ydl_options(request_options)) as ydl:
-        ydl.download([url])
+
+    if re.search(r'twitter.com',url):
+        try:
+            output = subprocess.check_output(
+                [sys.executable, "you-get", url]
+            )
+
+            print(output.decode("ascii"))
+        except subprocess.CalledProcessError as e:
+            print(e.output)
+
+    else:
+        with YoutubeDL(get_ydl_options(request_options)) as ydl:
+            ydl.download([url])
 
 
 routes = [
