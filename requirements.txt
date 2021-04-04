@@ -5,4 +5,3 @@ starlette
 uvicorn[standard]
 youtube-dl
 you-get
-re
